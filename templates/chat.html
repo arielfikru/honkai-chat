@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@600&family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex flex-col h-screen">
+        <div class="flex items-center justify-between p-4">
+            <button class="focus:outline-none">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            <div>
+                <h1 class="text-lg font-semibold cursor-pointer" onclick="window.location.href='/char_settings'">Herta</h1>
+                <p class="text-xs">Member 83 of the Genius Society. The real master of the space station. </p>
+            </div>
+            <div class="relative">
+                <button class="focus:outline-none" id="menu-button">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12M6 6h12m-7 12h7"></path>
+                    </svg>
+                </button>
+                <div id="menu-options" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg p-4 space-y-2">
+                    <a href="#" id="clear-conversation" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Clear Conversation</a>
+                    <a href="/char_settings" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Character Settings</a>
+                    <label class="block text-sm">
+                        Temperature
+                        <input type="range" id="temperature" min="0" max="1" step="0.1" value="1" class="w-full">
+                    </label>
+                    <label class="block text-sm">
+                        Top P
+                        <input type="number" id="top_p" min="0" max="1" step="0.01" value="0.95" class="w-full">
+                    </label>
+                    <label class="block text-sm">
+                        Top K
+                        <input type="number" id="top_k" value="64" class="w-full">
+                    </label>
+                    <label class="block text-sm">
+                        Max Output Tokens
+                        <input type="number" id="max_output_tokens" value="8192" class="w-full">
+                    </label>
+                    <label class="block text-sm">
+                        Model
+                        <select id="model_name" class="w-full">
+                            <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                        </select>
+                    </label>
+                    <button id="save-settings" class="block w-full py-2 text-sm text-white bg-blue-500 rounded">Save Settings</button>
+                </div>                
+            </div>
+        </div>
+        <hr class="mb-4">
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chat-container">
+            <!-- Placeholder for chat messages will be dynamically inserted here -->
+        </div>
+
+        <div class="bg-white p-4 flex items-center">
+            <input type="text" id="message-input" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Type a message...">
+            <button class="ml-2 p-2 rounded-full bg-gray-300 focus:outline-none" id="send-button">
+                <img src="/static/send.svg" alt="Send Icon" class="h-6 w-6">
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            loadChat();
+
+            document.getElementById('send-button').addEventListener('click', function() {
+                sendMessage();
+            });
+
+            document.getElementById('message-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+
+            document.getElementById('menu-button').addEventListener('click', function() {
+                const menuOptions = document.getElementById('menu-options');
+                menuOptions.classList.toggle('hidden');
+            });
+
+            document.getElementById('clear-conversation').addEventListener('click', function(e) {
+                e.preventDefault();
+                clearConversation();
+            });
+
+            document.getElementById('save-settings').addEventListener('click', function() {
+                const temperature = document.getElementById('temperature').value;
+                const top_p = document.getElementById('top_p').value;
+                const top_k = document.getElementById('top_k').value;
+                const max_output_tokens = document.getElementById('max_output_tokens').value;
+                const model_name = document.getElementById('model_name').value;
+
+                const settings = {
+                    temperature: parseFloat(temperature),
+                    top_p: parseFloat(top_p),
+                    top_k: parseInt(top_k),
+                    max_output_tokens: parseInt(max_output_tokens),
+                    model_name: model_name
+                };
+
+                fetch('/update_settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(settings)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Settings updated successfully!');
+                });
+            });
+        });
+
+        function scrollToBottom() {
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function loadChat() {
+            let conversation = JSON.parse(localStorage.getItem('conversation'));
+            if (!conversation) {
+                fetch('/static/conversation.json')
+                    .then(response => response.json())
+                    .then(data => {
+                        localStorage.setItem('conversation', JSON.stringify(data.conversations));
+                        renderChat(data.conversations);
+                    });
+            } else {
+                renderChat(conversation);
+            }
+        }
+
+        function renderChat(conversation) {
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.innerHTML = '';
+
+            conversation.forEach(convo => {
+                if (convo.from === 'system') {
+                    return;
+                }
+
+                const messageElement = document.createElement('div');
+                messageElement.classList.add('flex', 'items-start', 'space-x-2', 'mb-4');
+
+                if (convo.from === 'user') {
+                    messageElement.classList.add('user-message');
+                    messageElement.innerHTML = `
+                        <div class="flex items-start space-x-2">
+                            <div>
+                                <p class="text-sm text-gray-600 text-right">User</p>
+                                <div class="p-3 rounded-r-md rounded-l-lg shadow-md max-w-xs" style="background-color: #d4ba8b;">
+                                    <p class="text-sm">${formatMessage(convo.value)}</p>
+                                </div>
+                            </div>
+                            <img src="/static/icon_user.svg" alt="User Icon" class="chat-icon rounded-full">
+                        </div>
+                    `;
+                } else if (convo.from === 'char') {
+                    messageElement.classList.add('char-message');
+                    messageElement.innerHTML = `
+                        <div class="flex items-start space-x-2">
+                            <img src="/static/icon.svg" alt="Icon" class="chat-icon rounded-full">
+                            <div>
+                                <div class="chat-header">
+                                    <p class="text-sm text-gray-600">Herta</p>
+                                    <div class="chat-actions" style="margin-left:25px;">
+                                        <a href="#" class="text-xs">Retry</a>
+                                        <a href="#" class="text-xs">Menu</a>
+                                    </div>
+                                </div>
+                                <div class="bg-white p-3 rounded-l-md rounded-r-lg shadow-md max-w-xs">
+                                    <p class="text-sm">${formatMessage(convo.value)}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                chatContainer.appendChild(messageElement);
+            });
+
+            scrollToBottom();
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            let conversation = JSON.parse(localStorage.getItem('conversation'));
+
+            if (message === '') return;
+
+            appendUserMessage(message);
+            messageInput.value = '';
+
+            fetch('/send_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `message=${encodeURIComponent(message)}&conversation=${encodeURIComponent(JSON.stringify(conversation))}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                localStorage.setItem('conversation', JSON.stringify(data));
+                renderChat(data); 
+                setTimeout(() => {
+                    renderChat(data);
+                }, 3000);
+            });
+        }
+
+        function appendUserMessage(message) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('flex', 'items-start', 'space-x-2', 'mb-4', 'user-message');
+            messageElement.innerHTML = `
+                <div class="flex items-start space-x-2">
+                    <div>
+                        <p class="text-sm text-gray-600 text-right">User</p>
+                        <div class="p-3 rounded-r-md rounded-l-lg shadow-md max-w-xs" style="background-color: #d4ba8b;">
+                            <p class="text-sm">${formatMessage(message)}</p>
+                        </div>
+                    </div>
+                    <img src="/static/icon_user.svg" alt="User Icon" class="chat-icon rounded-full">
+                </div>
+            `;
+            chatContainer.appendChild(messageElement);
+            scrollToBottom();
+        }
+
+        function formatMessage(message) {
+            return message.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        }
+
+        function clearConversation() {
+            localStorage.removeItem('conversation');
+            location.reload();
+        }
+    </script>
+</body>
+</html>

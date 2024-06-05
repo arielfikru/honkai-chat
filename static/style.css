@@ -1,0 +1,58 @@
+body {
+    font-family: "Noto Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 600;
+    font-style: normal;
+    font-variation-settings:
+        "wdth" 100;
+}
+
+.rounded-l-md {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+.rounded-r-md {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+.chat-icon {
+    height: 4rem;
+    width: 4rem;
+}
+.chat-header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+.chat-actions {
+    display: flex;
+    gap: 10px;
+}
+@keyframes typing {
+    0% { content: ''; }
+    33% { content: '.'; }
+    66% { content: '..'; }
+    100% { content: '...'; }
+}
+.typing::after {
+    content: '';
+    animation: typing 1s steps(3, end) infinite;
+}
+.sticker {
+    max-width: 192px;
+    max-height: 192px;
+    object-fit: contain;
+}
+.image-upload {
+    max-width: 224px;
+    max-height: 224px;
+    object-fit: contain;
+}
+
+.user-message {
+    justify-content: flex-end;
+}
+
+.char-message {
+    justify-content: flex-start;
+}

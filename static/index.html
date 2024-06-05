@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@600&family=Roboto&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: "Noto Sans", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 600;
+            font-style: normal;
+            font-variation-settings:
+                "wdth" 100;
+        }
+
+        .rounded-l-md {
+            border-top-left-radius: 0.375rem;
+            border-bottom-left-radius: 0.375rem;
+        }
+        .rounded-r-md {
+            border-top-right-radius: 0.375rem;
+            border-bottom-right-radius: 0.375rem;
+        }
+        .chat-icon {
+            height: 4rem;
+            width: 4rem;
+        }
+        .chat-header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+        .chat-actions {
+            display: flex;
+            gap: 10px;
+        }
+        @keyframes typing {
+            0% { content: ''; }
+            33% { content: '.'; }
+            66% { content: '..'; }
+            100% { content: '...'; }
+        }
+        .typing::after {
+            content: '';
+            animation: typing 1s steps(3, end) infinite;
+        }
+        .sticker {
+            max-width: 192px;
+            max-height: 192px;
+            object-fit: contain;
+        }
+        .image-upload {
+            max-width: 224px;
+            max-height: 224px;
+            object-fit: contain;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex flex-col h-screen">
+        <div class="flex items-center justify-between p-4">
+            <button class="focus:outline-none">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+            </button>
+            <div>
+                <h1 class="text-lg font-semibold">Herta</h1>
+                <p class="text-xs">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+            </div>
+            <button class="focus:outline-none">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 12h12M6 6h12m-7 12h7"></path>
+                </svg>
+            </button>
+        </div>
+        <hr class="mb-4">
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-4">
+            <!-- Centered Message Bubble for System or Notification -->
+            <div class="flex justify-center" style="margin-bottom: 50px;">
+                <div class="bg-gray-300 p-3 rounded-lg shadow-md max-w-2xl text-center" style="padding: 20px;">
+                    <p class="text-sm">This is System Message or Notification Placeholder.</p>
+                </div>
+            </div>
+
+            <!-- Chat from Herta -->
+            <div class="flex items-start space-x-2">
+                <img src="icon.svg" alt="Icon" class="chat-icon rounded-full">
+                <div>
+                    <div class="chat-header">
+                        <p class="text-sm text-gray-600">Herta</p>
+                        <div class="chat-actions">
+                            <a href="#" class="text-xs">Retry</a>
+                            <a href="#" class="text-xs">Rate</a>
+                            <a href="#" class="text-xs">Report</a>
+                            <a href="#" class="text-xs">Menu</a>
+                        </div>
+                    </div>
+                    <div class="bg-white p-3 rounded-l-md rounded-r-lg shadow-md max-w-xs">
+                        <p class="text-sm">Hey, NekoFi, it's Herta. I need you for something good</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat from User -->
+            <div class="flex items-start justify-end space-x-2">
+                <div>
+                    <p class="text-sm text-gray-600 text-right">User</p>
+                    <div class="p-3 rounded-r-md rounded-l-lg shadow-md max-w-xs" style="background-color: #d4ba8b;">
+                        <p class="text-sm">What</p>
+                    </div>
+                </div>
+                <img src="icon_user.svg" alt="User Icon" class="chat-icon rounded-full">
+            </div>
+
+            <!-- Chat from Herta: Typing -->
+            <div class="flex items-start space-x-2">
+                <img src="icon.svg" alt="Icon" class="chat-icon rounded-full">
+                <div>
+                    <div class="chat-header">
+                        <p class="text-sm text-gray-600">Herta</p>
+                    </div>
+                    <div class="bg-white p-3 rounded-l-md rounded-r-lg shadow-md max-w-xs">
+                        <p class="text-sm">Herta is Typing<span class="typing"></span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat from User: Sticker -->
+            <div class="flex items-start justify-end space-x-2">
+                <div>
+                    <p class="text-sm text-gray-600 text-right">User</p>
+                    <img src="sticker.png" alt="Sticker" class="sticker">
+                </div>
+                <img src="icon_user.svg" alt="User Icon" class="chat-icon rounded-full">
+            </div>
+
+            <!-- Chat from Herta: Image Upload -->
+            <div class="flex items-start space-x-2">
+                <img src="icon.svg" alt="Icon" class="chat-icon rounded-full">
+                <div>
+                    <div class="chat-header">
+                        <p class="text-sm text-gray-600">Herta</p>
+                        <div class="chat-actions">
+                            <a href="#" class="text-xs">Retry</a>
+                            <a href="#" class="text-xs">Rate</a>
+                            <a href="#" class="text-xs">Report</a>
+                            <a href="#" class="text-xs">Menu</a>
+                        </div>
+                    </div>
+                    <div class="bg-white p-3 rounded-l-md rounded-r-lg shadow-md max-w-xs">
+                        <img src="herta.jpg" alt="Uploaded Image" class="image-upload">
+                        <p class="text-sm mt-2">Do you think I'm Cute?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat from User: Sticker -->
+            <div class="flex items-start justify-end space-x-2">
+                <div>
+                    <p class="text-sm text-gray-600 text-right">User</p>
+                    <img src="herta-spinning.gif" alt="Sticker" class="sticker">
+                </div>
+                <img src="icon_user.svg" alt="User Icon" class="chat-icon rounded-full">
+            </div>
+
+        </div>
+
+        <div class="bg-white p-4 flex items-center">
+            <input type="text" class="w-full p-2 border border-gray-300 rounded-lg" placeholder="Type a message...">
+            <button class="ml-2 p-2 rounded-full bg-gray-300 focus:outline-none">
+                <img src="send.svg" alt="Send Icon" class="h-6 w-6">
+            </button>
+        </div>
+    </div>
+</body>
+</html>
