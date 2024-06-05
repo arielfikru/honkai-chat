@@ -13,10 +13,10 @@ This repository contains a Flask-based web application that integrates with Goog
 
 ## Screenshots
 
-![Chat Room](static/chat_room.png)
+![Chat Room](static/chat_room.png =x256)
 *Chat Room Interface*
 
-![Character Settings](static/character_settings.png)
+![Character Settings](static/character_settings.png =x256)
 *Character Settings Interface*
 
 ### Chat Room
